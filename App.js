@@ -13,7 +13,7 @@ import Styles from './StyleSheet';
 import { Dimensions } from 'react-native';
 /*import CurrentPosition from './CurrentPosition';*/
 
-
+//gitの練習
 
 class App extends Component  {
   constructor(props){

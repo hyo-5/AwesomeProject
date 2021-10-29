@@ -14,6 +14,7 @@ import { Dimensions } from 'react-native';
 /*import CurrentPosition from './CurrentPosition';*/
 
 //gitの練習
+//gitdiff
 
 class App extends Component  {
   constructor(props){

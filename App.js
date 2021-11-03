@@ -12,9 +12,27 @@ import { Button } from 'native-base';
 import Styles from './StyleSheet';
 import { Dimensions } from 'react-native';
 /*import CurrentPosition from './CurrentPosition';*/
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs,setDoc,addDoc,doc } from 'firebase/firestore/lite';///lite
 
-//gitの練習
-//gitdiff
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBZ04agm9PnU2jbJYFVoOkCTQKXRxRUhAY",
+  authDomain: "naviapp-6e2a5.firebaseapp.com",
+  projectId: "naviapp-6e2a5",
+  storageBucket: "naviapp-6e2a5.appspot.com",
+  messagingSenderId: "638234651587",
+  appId: "1:638234651587:web:fe906f9d2ae3788a416b76"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 class App extends Component  {
   constructor(props){
@@ -108,14 +126,63 @@ class App extends Component  {
         console.warn(err);
       }
     }
+    //Firebaseから屋内データの読み取り
+    const inDataCol = collection(db,'inData');
+    const inDataSnapshot = await getDocs(inDataCol);
+    const inDataList = inDataSnapshot.docs.map(doc => doc.data());
+    
+    //Firebaseから屋内データの読み取り
+    const outDataCol = collection(db,'outData');
+    const outDataSnapshot = await getDocs(outDataCol);
+    const outDataList = outDataSnapshot.docs.map(doc => doc.data());
+
+    //Firebaseから屋内データの読み取り
+    const roofDataCol = collection(db,'roofData');
+    const roofDataSnapshot = await getDocs(roofDataCol);
+    const roofDataList = roofDataSnapshot.docs.map(doc => doc.data());
+    //取ってきたデータを配列に追加
+    this.setState({
+      inItems:inDataList,
+      outItems:outDataList,
+      roofItems:roofDataList,
+    })
   }
 
   /*更新時*/
   /*componentDidUpdate(){
-    this.getCurrentLocation();
+    this.getLocation();
   }*/
 
-  /*位置情報の取得*/
+  //Firebaseから飲食可能スペースの情報を取得
+  async getLocation(){
+    //Firebaseから屋内データの読み取り
+    const inDataCol = collection(db,'inData');
+    const inDataSnapshot = await getDocs(inDataCol);
+    const inDataList = inDataSnapshot.docs.map(doc => doc.data());
+    
+    //Firebaseから屋内データの読み取り
+    const outDataCol = collection(db,'outData');
+    const outDataSnapshot = await getDocs(outDataCol);
+    const outDataList = outDataSnapshot.docs.map(doc => doc.data());
+
+    //Firebaseから屋内データの読み取り
+    const roofDataCol = collection(db,'roofData');
+    const roofDataSnapshot = await getDocs(roofDataCol);
+    const roofDataList = roofDataSnapshot.docs.map(doc => doc.data());
+    //取ってきたデータを配列に追加
+    this.setState({
+      inItems:inDataList,
+      outItems:outDataList,
+      roofItems:roofDataList,
+      modalVisible:false,
+      region:{
+        latitude:this.state.currentRegion.latitude,
+        longitude:this.state.currentRegion.longitude
+      }
+    })
+  }
+
+  /*現在位置情報の取得*/
   getCurrentLocation(){
     Geolocation.getCurrentPosition(
       (position) => {
@@ -342,8 +409,37 @@ class App extends Component  {
     );
   }
 
+  /*新しいピンをFirease上の配列に追加*/
+  async setLocation(){
+    if(this.state.inButton===true){
+      await addDoc(collection(db,'inData'),{
+        latitude:this.state.region.latitude,
+        longitude:this.state.region.longitude,
+        tableButton:this.state.tableButton,
+        benchButton:this.state.benchButton,
+      })
+    }
+    if(this.state.outButton===true){
+      await addDoc(collection(db,'outData'),{
+        latitude:this.state.region.latitude,
+        longitude:this.state.region.longitude,
+        tableButton:this.state.tableButton,
+        benchButton:this.state.benchButton,
+      })
+    }
+    if(this.state.roofButton===true){
+      await addDoc(collection(db,'roofData'),{
+        latitude:this.state.region.latitude,
+        longitude:this.state.region.longitude,
+        tableButton:this.state.tableButton,
+        benchButton:this.state.benchButton,
+      })
+    }
+    console.log('success to push!');
+    this.getLocation();
+  }
   /*新しいピンを配列に追加する*/
-  setLocation(){
+  /*setLocation(){
     if(this.state.inButton===true){
       this.setState({
         inItems:this.state.inItems.concat({
@@ -378,7 +474,6 @@ class App extends Component  {
         modalVisible:false
       })
     }
-
     this.setState({
       region:{
         latitude:this.state.currentRegion.latitude,
@@ -387,9 +482,9 @@ class App extends Component  {
     })
 
     /*現在地に戻る*/
-    /*this.getCurrentLocation();*/
+    /*this.getCurrentLocation();
     console.log('success to push!');
-  }
+  }*/
 
   /*飲食可能スペースの詳細を表示*/
   showDetailInModal(){

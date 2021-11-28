@@ -1,7 +1,7 @@
 import React,{Component,useState,useEffect}from 'react';
 import {Image,TouchableOpacity,Switch,View,Text,StyleSheet,PermissionsAndroid,Modal} from 'react-native';
 /*import Icon from 'react-native-vector-icons/FontAwesome';*/
-import MapView, {PROVIDER_GOOGLE,Region,Marker,MapEvent} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE,Region,Marker,Circle,Callout} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import PermissionAlertButton from './PermissionAlertButton';
 import ButtonView from './ButtonView';
@@ -435,7 +435,7 @@ class App extends Component  {
         benchButton:this.state.benchButton,
       })
     }
-    console.log('success to push!');
+    console.log('success to push');
     this.getLocation();
   }
   /*新しいピンを配列に追加する*/
@@ -802,7 +802,57 @@ class App extends Component  {
       </Modal>
     );
   }
-  
+  //配列のマーカーを設置(circle)
+  showCircle(item,index,color){
+    return(
+      <View>
+        <Circle
+          center={{
+            latitude:item.latitude,
+            longitude:item.longitude,
+          }}//中心の座標
+          radius={10}//円の半径(m)
+          fillColor={color}//ストロークの色
+        />
+        {this.showInMarker(item,index)} 
+      </View>
+    );
+  }
+  //配列のマーカーを設置(ピン＆屋内ver)
+  showInMarker(item,index){
+    return(
+      <Marker
+        key={index}
+        coordinate={{
+          latitude:item.latitude,
+          longitude:item.longitude,
+        }}
+        onPress={()=>{
+          this.setState({
+            inModalNumber:index,
+            detailInModal:true,
+          })
+        }}
+        >
+        {/*ピンの形(飲食可能スペース)*/}
+        <View style={Styles.centerOfScreen}>
+          <View
+            style={Styles.iconBackground}>
+            <Icon
+              color='#1e90ff'
+              type="FontAwesome5"
+              name="lightbulb"
+              style={Styles.icon}
+            />
+          </View>
+          <View
+            style={Styles.invertedTriangle}
+          >
+          </View>
+        </View>
+      </Marker>
+    )
+  }
 
   render(){
     /*stateが変更された確認*/
@@ -855,14 +905,11 @@ class App extends Component  {
               latitude: this.state.currentRegion.latitude,
               longitude: this.state.currentRegion.longitude,
             }}>
-            <View style={{
-              position:'absolute',
-              justifyContent: 'center',
-              }}>
+            <View style={Styles.centerOfScreen}>
               {/*ピンの形(現在地)*/}
               <View
                 style={{
-                  top: 2,
+                  top: 1,
                   width: 30,
                   height: 30,
                   alignSelf: 'center',
@@ -881,55 +928,13 @@ class App extends Component  {
                   }}
                 />
               </View>
-              
             </View>
           </Marker>
           {/*配列の飲食可能スペースのピンを設置*/}
           {this.state.inItems.map((item,index)=>(
             console.log('in'),
-            <Marker
-            key={index}
-            coordinate={{
-              latitude:item.latitude,
-              longitude:item.longitude,
-            }}
-            onPress={()=>{
-              this.setState({
-                inModalNumber:index,
-                detailInModal:true,
-              })
-            }}
-            >
-            {/*ピンの形(飲食可能スペース)*/}
-            <View style={{
-              position:'absolute',
-              justifyContent: 'center',
-              }}>
-              <View
-                style={{
-                  backgroundColor:'FFF',
-                  top: 0,
-                  width: 30,
-                  height: 30,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 30 / 2,
-                  backgroundColor: '#00FFFF',
-                }}>
-                <Icon
-                  color='#1e90ff'
-                  type="FontAwesome5"
-                  name="lightbulb"
-                  style={{
-                    top:0,
-                    color:'###',
-                    textAlign: 'center',
-                    fontSize: 10,
-                  }}
-                />
-              </View>
-            </View>
-          </Marker>
+            this.showCircle(item,index,'rgba(0,155,255,0.5)')
+            //this.showInMarker(item,index),
           ))}
           {this.state.outItems.map((item,index)=>(
             console.log('out'),
@@ -947,29 +952,14 @@ class App extends Component  {
             }}
             >
             {/*ピンの形(飲食可能スペース)*/}
-            <View style={{
-              position:'absolute',
-              justifyContent: 'center',
-              }}>
+            <View style={Styles.centerOfScreen}>
               <View
-                style={{
-                  top: 0,
-                  width: 30,
-                  height: 30,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 30 / 2,
-                  backgroundColor: '#00FFFF',
-                }}>
+                style={Styles.iconBackground}>
                 <Icon
                   color='yellow'
                   type="FontAwesome5"
                   name="lightbulb"
-                  style={{
-                    top:0,
-                    textAlign: 'center',
-                    fontSize: 10,
-                  }}
+                  style={Styles.icon}
                 />
               </View>
             </View>
@@ -991,30 +981,14 @@ class App extends Component  {
             }}
             >
             {/*ピンの形(飲食可能スペース)*/}
-            <View style={{
-              position:'absolute',
-              justifyContent: 'center',
-              }}>
+            <View style={Styles.centerOfScreen}>
               <View
-                style={{
-                  top: 0,
-                  width: 30,
-                  height: 30,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 30 / 2,
-                  backgroundColor: '#00FFFF',
-                }}>
+                style={Styles.iconBackground}>
                 <Icon
                   color='magenta'
                   type="FontAwesome5"
                   name="lightbulb"
-                  style={{
-                    top:0,
-                    color: 'F00',
-                    textAlign: 'center',
-                    fontSize: 10,
-                  }}
+                  style={Styles.icon}
                 />
               </View>
             </View>

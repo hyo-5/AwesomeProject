@@ -62,8 +62,27 @@ const Styles = StyleSheet.create({
         position : 'absolute',
         justifyContent:'center',
         padding:8,
-    }
-
+    },
+    bubble:{
+      flexDirection:'row',
+      alignSelf:'flex-start',
+      backgroundColor:'#fff',
+      borderRadius:6,
+      borderColor:'#ccc',
+      borderWidth:0.5,
+      padding:15,
+      width:150,
+      flexDirection:'column',
+    },
+    name:{
+      fontSize:16,
+      marginBottom:5,
+    },
+    nameFloat:{
+      flexDirection:'row',
+      fontSize:16,
+      marginBottom:5,
+    },
 
 })
 

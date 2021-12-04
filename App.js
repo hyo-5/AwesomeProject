@@ -827,12 +827,6 @@ class App extends Component  {
           latitude:item.latitude,
           longitude:item.longitude,
         }}
-        onPress={()=>{
-          this.setState({
-            inModalNumber:index,
-            detailInModal:true,
-          })
-        }}
         >
         {/*ピンの形(飲食可能スペース)*/}
         <View style={Styles.centerOfScreen}>
@@ -850,8 +844,84 @@ class App extends Component  {
           >
           </View>
         </View>
+        {/**コールアウト */}
+        <Callout tooltip
+          onPress={()=>{
+            this.setState({
+              inModalNumber:index,
+              detailInModal:true,
+            })
+          }}>
+          <View style={Styles.bubble}>
+            <View style={Styles.nameFloat}>
+              <Text style={Styles.name}>
+                テーブル：
+              </Text>
+              <Text style={Styles.name}>
+                {item.tableButton? "あり":"なし"}
+              </Text>
+            </View>
+            <View style={Styles.nameFloat}>
+              <Text style={Styles.name}>
+                イス：
+              </Text>
+              <Text style={Styles.name}>
+                {item.benchButton? "あり":"なし"}
+              </Text>
+            </View>
+          </View>
+        </Callout>
       </Marker>
     )
+  }
+  showOutMarker(item,index){
+    <Marker
+      key={index}
+      coordinate={{
+      latitude:item.latitude,
+      longitude:item.longitude,
+      }}
+    >
+      {/*ピンの形(飲食可能スペース)*/}
+      <View style={Styles.centerOfScreen}>
+        <View
+          style={Styles.iconBackground}>
+          <Icon
+            color='yellow'
+            type="FontAwesome5"
+            name="lightbulb"
+            style={Styles.icon}
+          />
+        </View>
+      </View>
+      {/**コールアウト */}
+      <Callout tooltip
+        onPress={()=>{
+          this.setState({
+            outModalNumber:index,
+            detailOutModal:true,
+          })
+        }}>
+        <View style={Styles.bubble}>
+          <View style={Styles.nameFloat}>
+            <Text style={Styles.name}>
+              テーブル：
+            </Text>
+            <Text style={Styles.name}>
+              {this.state.outItems[this.state.outModalNumber].tableButton? "あり":"なし"}
+            </Text>
+          </View>
+          <View style={Styles.nameFloat}>
+            <Text style={Styles.name}>
+              イス：
+            </Text>
+            <Text style={Styles.name}>
+              {this.state.outItems[this.state.outModalNumber].benchButton? "あり":"なし"}
+            </Text>
+          </View>
+        </View>
+      </Callout>
+    </Marker>
   }
 
   render(){
@@ -933,23 +1003,67 @@ class App extends Component  {
           {/*配列の飲食可能スペースのピンを設置*/}
           {this.state.inItems.map((item,index)=>(
             console.log('in'),
-            this.showCircle(item,index,'rgba(0,155,255,0.5)')
-            //this.showInMarker(item,index),
+            <Marker
+              key={index}
+              coordinate={{
+                latitude:item.latitude,
+                longitude:item.longitude,
+              }}
+              >
+              {/*ピンの形(飲食可能スペース)*/}
+              <View style={Styles.centerOfScreen}>
+                <View
+                  style={Styles.iconBackground}>
+                  <Icon
+                    color='#1e90ff'
+                    type="FontAwesome5"
+                    name="lightbulb"
+                    style={Styles.icon}
+                  />
+                </View>
+                <View
+                  style={Styles.invertedTriangle}
+                >
+                </View>
+              </View>
+              {/**コールアウト */}
+              <Callout tooltip
+                onPress={()=>{
+                  this.setState({
+                    inModalNumber:index,
+                    detailInModal:true,
+                  })
+                }}>
+                <View style={Styles.bubble}>
+                  <View style={Styles.nameFloat}>
+                    <Text style={Styles.name}>
+                      テーブル：
+                    </Text>
+                    <Text style={Styles.name}>
+                      {item.tableButton? "あり":"なし"}
+                    </Text>
+                  </View>
+                  <View style={Styles.nameFloat}>
+                    <Text style={Styles.name}>
+                      イス：
+                    </Text>
+                    <Text style={Styles.name}>
+                      {item.benchButton? "あり":"なし"}
+                    </Text>
+                  </View>
+                </View>
+              </Callout>
+            </Marker>
+            //this.showInMarker(item,index)
           ))}
           {this.state.outItems.map((item,index)=>(
             console.log('out'),
             <Marker
-            key={index}
-            coordinate={{
+              key={index}
+              coordinate={{
               latitude:item.latitude,
               longitude:item.longitude,
-            }}
-            onPress={()=>{
-              this.setState({
-                outModalNumber:index,
-                detailOutModal:true,
-              })
-            }}
+              }}
             >
             {/*ピンの形(飲食可能スペース)*/}
             <View style={Styles.centerOfScreen}>
@@ -963,22 +1077,43 @@ class App extends Component  {
                 />
               </View>
             </View>
+            {/**コールアウト */}
+            <Callout tooltip
+              onPress={()=>{
+                this.setState({
+                  outModalNumber:index,
+                  detailOutModal:true,
+                })
+              }}>
+              <View style={Styles.bubble}>
+                <View style={Styles.nameFloat}>
+                  <Text style={Styles.name}>
+                    テーブル：
+                  </Text>
+                  <Text style={Styles.name}>
+                    {item.tableButton? "あり":"なし"}
+                  </Text>
+                </View>
+                <View style={Styles.nameFloat}>
+                  <Text style={Styles.name}>
+                    イス：
+                  </Text>
+                  <Text style={Styles.name}>
+                    {item.benchButton? "あり":"なし"}
+                  </Text>
+                </View>
+              </View>
+            </Callout>
           </Marker>
           ))}
           {this.state.roofItems.map((item,index)=>(
             console.log('roof'),
             <Marker
-            key={index}
-            coordinate={{
+              key={index}
+              coordinate={{
               latitude:item.latitude,
               longitude:item.longitude,
-            }}
-            onPress={()=>{
-              this.setState({
-                roofModalNumber:index,
-                detailRoofModal:true,
-              })
-            }}
+              }}
             >
             {/*ピンの形(飲食可能スペース)*/}
             <View style={Styles.centerOfScreen}>
@@ -992,6 +1127,33 @@ class App extends Component  {
                 />
               </View>
             </View>
+            {/**コールアウト */}
+            <Callout tooltip
+              onPress={()=>{
+                this.setState({
+                  roofModalNumber:index,
+                  detailRoofModal:true,
+                })
+              }}>
+              <View style={Styles.bubble}>
+                <View style={Styles.nameFloat}>
+                  <Text style={Styles.name}>
+                    テーブル：
+                  </Text>
+                  <Text style={Styles.name}>
+                    {item.tableButton? "あり":"なし"}
+                  </Text>
+                </View>
+                <View style={Styles.nameFloat}>
+                  <Text style={Styles.name}>
+                    イス：
+                  </Text>
+                  <Text style={Styles.name}>
+                    {item.benchButton? "あり":"なし"}
+                  </Text>
+                </View>
+              </View>
+            </Callout>
           </Marker>
           ))}
         </MapView>

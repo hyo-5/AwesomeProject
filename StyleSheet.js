@@ -83,6 +83,20 @@ const Styles = StyleSheet.create({
       fontSize:16,
       marginBottom:5,
     },
+    invertedTriangle1:{
+      top: -4,
+      width: 0,
+      height: 1,
+      alignSelf: 'center',
+      backgroundColor: 'transparent',
+      borderLeftWidth: 10,
+      borderRightWidth: 10,
+      borderTopWidth: 8,
+      borderBottomWidth: -20,
+      borderTopColor: '#FF4F02',
+      borderLeftColor: 'transparent',
+      borderRightColor: 'transparent',
+    },
 
 })
 

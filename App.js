@@ -57,7 +57,9 @@ class App extends Component  {
           latitude:33.2415596,
           longitude:130.2883215,
           tableButton:true,
-          benchButton:false,
+          benchLowButton:false,
+          benchMidButton:true,
+          benchHighButton:false,
         },
       ],
       outItems:[
@@ -65,7 +67,9 @@ class App extends Component  {
           latitude:33.2417000,
           longitude:130.2884000,
           tableButton:false,
-          benchButton:true,
+          benchLowButton:false,
+          benchMidButton:true,
+          benchHighButton:false,
         },
       ],
       roofItems:[
@@ -74,13 +78,11 @@ class App extends Component  {
           latitude:33.241300,
           longitude:130.2884100,
           tableButton:false,
-          benchButton:true,
+          benchLowButton:false,
+          benchMidButton:true,
+          benchHighButton:false,
         },
       ],
-
-      //roofId:1,
-      //inId:3,
-      //outId:1,//変更点
 
       crosshair:false,
       modalVisible:false,
@@ -92,7 +94,9 @@ class App extends Component  {
       outButton:false,
       roofButton:false,
       tableButton:false,
-      benchButton:false,
+      benchLowButton:false,
+      benchMidButton:false,
+      benchHighButton:false,
 
       inModalNumber:0,
       outModalNumber:0,
@@ -363,22 +367,68 @@ class App extends Component  {
               テーブル
             </Text>
           </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.benchButton? "#6495ed" : "#ffffff"}
-            onPress={()=>{
-              this.setState({
-                benchButton:!this.state.benchButton,
-              })
-            }}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              ベンチ
-            </Text>
-          </Button>
+          <Text>
+              席数
+          </Text>
+          <View
+            Style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.benchLowButton? "#6495ed" : "#ffffff"}
+              onPress={()=>{
+                this.setState({
+                  benchLowButton:!this.state.benchLowButton,
+                  benchMidButton:false,
+                  benchHighButton:false,
+                })
+              }}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                1~2
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.benchMidButton? "#6495ed" : "#ffffff"}
+              onPress={()=>{
+                this.setState({
+                  benchMidButton:!this.state.benchMidButton,
+                  benchLowButton:false,
+                  benchHighButton:false,
+                })
+              }}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                3~4
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.benchHighButton? "#6495ed" : "#ffffff"}
+              onPress={()=>{
+                this.setState({
+                  benchHighButton:!this.state.benchHighButton,
+                  benchLowButton:false,
+                  benchMidButton:false,
+                })
+              }}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                5~
+              </Text>
+            </Button>
+          </View>
           {/*決定ボタン*/}
           <Button
             style={{
@@ -393,7 +443,9 @@ class App extends Component  {
                 outButton:false,
                 roofButton:false,
                 tableButton:false,
-                benchButton:false,
+                benchLowButton:false,
+                benchHighButton:false,
+                benchMidButton:false,
               })
             }}
           >
@@ -416,7 +468,9 @@ class App extends Component  {
         latitude:this.state.region.latitude,
         longitude:this.state.region.longitude,
         tableButton:this.state.tableButton,
-        benchButton:this.state.benchButton,
+        benchLowButton:this.state.benchLowButton,
+        benchMidButton:this.state.benchMidButton,
+        benchHighButton:this.state.benchHighButton,
       })
     }
     if(this.state.outButton===true){
@@ -424,7 +478,9 @@ class App extends Component  {
         latitude:this.state.region.latitude,
         longitude:this.state.region.longitude,
         tableButton:this.state.tableButton,
-        benchButton:this.state.benchButton,
+        benchLowButton:this.state.benchLowButton,
+        benchMidButton:this.state.benchMidButton,
+        benchHighButton:this.state.benchHighButton,
       })
     }
     if(this.state.roofButton===true){
@@ -432,59 +488,14 @@ class App extends Component  {
         latitude:this.state.region.latitude,
         longitude:this.state.region.longitude,
         tableButton:this.state.tableButton,
-        benchButton:this.state.benchButton,
+        benchLowButton:this.state.benchLowButton,
+        benchMidButton:this.state.benchMidButton,
+        benchHighButton:this.state.benchHighButton,
       })
     }
     console.log('success to push');
     this.getLocation();
   }
-  /*新しいピンを配列に追加する*/
-  /*setLocation(){
-    if(this.state.inButton===true){
-      this.setState({
-        inItems:this.state.inItems.concat({
-          latitude:this.state.region.latitude,
-          longitude:this.state.region.longitude,
-          tableButton:this.state.tableButton,
-          benchButton:this.state.benchButton,
-        }),
-        modalVisible:false
-      })
-    }
-    if(this.state.outButton===true){
-      this.setState({
-        outItems:this.state.outItems.concat({
-          latitude:this.state.region.latitude,
-          longitude:this.state.region.longitude,
-          tableButton:this.state.tableButton,
-          benchButton:this.state.benchButton,
-        }),
-        modalVisible:false
-      })
-    }
-    console.log(this.state.outItems)
-    if(this.state.roofButton===true){
-      this.setState({
-        roofItems:this.state.roofItems.concat({
-          latitude:this.state.region.latitude,
-          longitude:this.state.region.longitude,
-          tableButton:this.state.tableButton,
-          benchButton:this.state.benchButton,
-        }),
-        modalVisible:false
-      })
-    }
-    this.setState({
-      region:{
-        latitude:this.state.currentRegion.latitude,
-        longitude:this.state.currentRegion.longitude
-      }
-    })
-
-    /*現在地に戻る*/
-    /*this.getCurrentLocation();
-    console.log('success to push!');
-  }*/
 
   /*飲食可能スペースの詳細を表示*/
   showDetailInModal(){
@@ -557,17 +568,45 @@ class App extends Component  {
               テーブル
             </Text>
           </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.inItems[this.state.inModalNumber].benchButton? "#6495ed" : "#ffffff"}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              ベンチ
-            </Text>
-          </Button>
+          <Text
+            Style={{flexDirection:'row',}}>
+            席数
+          </Text>
+          <View>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.inItems[this.state.inModalNumber].benchLowButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                1~2
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.inItems[this.state.inModalNumber].benchMidButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                3~4
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.inItems[this.state.inModalNumber].benchHighButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                5~
+              </Text>
+            </Button>
+          </View>
           {/*閉じるボタン*/}
           <Button
             style={{
@@ -662,17 +701,45 @@ class App extends Component  {
               テーブル
             </Text>
           </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.outItems[this.state.outModalNumber].benchButton? "#6495ed" : "#ffffff"}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              ベンチ
-            </Text>
-          </Button>
+          <Text
+            Style={{flexDirection:'row',}}>
+            席数
+          </Text>
+          <View>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.outItems[this.state.outModalNumber].benchLowButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                1~2
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.outItems[this.state.outModalNumber].benchMidButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                3~4
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.outItems[this.state.outModalNumber].benchHighButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                5~
+              </Text>
+            </Button>
+          </View>
           {/*閉じるボタン*/}
           <Button
             style={{
@@ -767,17 +834,45 @@ class App extends Component  {
               テーブル
             </Text>
           </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.roofItems[this.state.roofModalNumber].benchButton? "#6495ed" : "#ffffff"}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              ベンチ
-            </Text>
-          </Button>
+          <Text
+            Style={{flexDirection:'row',}}>
+            席数
+          </Text>
+          <View>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.roofItems[this.state.roofModalNumber].benchLowButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                1~2
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.roofItems[this.state.roofModalNumber].benchMidButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                3~4
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.roofItems[this.state.roofModalNumber].benchHighButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                5~
+              </Text>
+            </Button>
+          </View>
           {/*閉じるボタン*/}
           <Button
             style={{
@@ -866,7 +961,9 @@ class App extends Component  {
                 イス：
               </Text>
               <Text style={Styles.name}>
-                {item.benchButton? "あり":"なし"}
+                {item.benchLowButton? "1~2":""}
+                {item.benchMidButton? "3~4":""}
+                {item.benchHighButton? "5~":""}
               </Text>
             </View>
           </View>
@@ -916,7 +1013,9 @@ class App extends Component  {
               イス：
             </Text>
             <Text style={Styles.name}>
-              {this.state.outItems[this.state.outModalNumber].benchButton? "あり":"なし"}
+              {item.benchLowButton? "1~2":""}
+              {item.benchMidButton? "3~4":""}
+              {item.benchHighButton? "5~":""}
             </Text>
           </View>
         </View>
@@ -1048,7 +1147,9 @@ class App extends Component  {
                       イス：
                     </Text>
                     <Text style={Styles.name}>
-                      {item.benchButton? "あり":"なし"}
+                      {item.benchLowButton? "1~2":""}
+                      {item.benchMidButton? "3~4":""}
+                      {item.benchHighButton? "5~":""}
                     </Text>
                   </View>
                 </View>
@@ -1099,7 +1200,9 @@ class App extends Component  {
                     イス：
                   </Text>
                   <Text style={Styles.name}>
-                    {item.benchButton? "あり":"なし"}
+                    {item.benchLowButton? "1~2":""}
+                    {item.benchMidButton? "3~4":""}
+                    {item.benchHighButton? "5~":""}
                   </Text>
                 </View>
               </View>
@@ -1149,7 +1252,9 @@ class App extends Component  {
                     イス：
                   </Text>
                   <Text style={Styles.name}>
-                    {item.benchButton? "あり":"なし"}
+                    {item.benchLowButton? "1~2":""}
+                    {item.benchMidButton? "3~4":""}
+                    {item.benchHighButton? "5~":""}
                   </Text>
                 </View>
               </View>

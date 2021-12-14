@@ -45,6 +45,15 @@ const Styles = StyleSheet.create({
       padding: 10,
       margin:10,
     },
+    optionButton1:{
+      flexDirection:'row',
+      borderRadius: 20,
+      padding: 10,
+      margin:10,
+    },
+    numOfSeat:{
+      flexDirection:'row',
+    },
     addButton:{
         position : 'absolute',
         right : '3%',

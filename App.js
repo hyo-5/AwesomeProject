@@ -8,13 +8,13 @@ import ButtonView from './ButtonView';
 import CurrentLocation from './SetLocation';
 import { Platform } from 'react-native';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
-import { Button } from 'native-base';
+import { Button, Right } from 'native-base';
 import Styles from './StyleSheet';
 import { Dimensions } from 'react-native';
 /*import CurrentPosition from './CurrentPosition';*/
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs,setDoc,addDoc,doc } from 'firebase/firestore/lite';///lite
+import { getFirestore, collection, getDocs,setDoc,addDoc,updateDoc,doc } from 'firebase/firestore/lite';///lite
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -51,9 +51,15 @@ class App extends Component  {
         longitudeDelta: 0.0421,
       },
       
+      dataCounter:[{
+        inDataCounter:0,
+        outDataCounter:0,
+        roofDataCounter:0,
+        },
+      ],
       inItems:[
         { 
-          //id:0,//変更点
+          dispMarker:true,
           latitude:33.2415596,
           longitude:130.2883215,
           tableButton:true,
@@ -64,6 +70,7 @@ class App extends Component  {
       ],
       outItems:[
         { 
+          dispMarker:true,
           latitude:33.2417000,
           longitude:130.2884000,
           tableButton:false,
@@ -74,7 +81,7 @@ class App extends Component  {
       ],
       roofItems:[
         { 
-          //id:0,//変更点
+          dispMarker:true,
           latitude:33.241300,
           longitude:130.2884100,
           tableButton:false,
@@ -89,7 +96,10 @@ class App extends Component  {
       detailInModal:false,
       detailOutModal:false,
       detailRoofModal:false,
+      editMode:false,
       /*オプション*/
+      disMarker:true,
+      discrimModal:0,//：１：屋内、２：屋外、３：屋根付き
       inButton:false,
       outButton:false,
       roofButton:false,
@@ -98,9 +108,13 @@ class App extends Component  {
       benchMidButton:false,
       benchHighButton:false,
 
+
       inModalNumber:0,
       outModalNumber:0,
       roofModalNumber:0,
+      /*inDataCounter:1,
+      outDataCounter:1,
+      roofDataCounter:1,*/
     };
   }
 
@@ -130,6 +144,10 @@ class App extends Component  {
         console.warn(err);
       }
     }
+    //FirebaseからdataCounterを読み取り
+    const dataCounterCol = collection(db,'dataCounter');
+    const dataCounterSnapshot = await getDocs(dataCounterCol);
+    const dataCounterList = dataCounterSnapshot.docs.map(doc =>doc.data());
     //Firebaseから屋内データの読み取り
     const inDataCol = collection(db,'inData');
     const inDataSnapshot = await getDocs(inDataCol);
@@ -146,11 +164,22 @@ class App extends Component  {
     const roofDataList = roofDataSnapshot.docs.map(doc => doc.data());
     //取ってきたデータを配列に追加
     this.setState({
+      dataCounter:dataCounterList,
       inItems:inDataList,
       outItems:outDataList,
       roofItems:roofDataList,
     })
   }
+  /*終了時*/
+  /*async componentWillUnmount(){
+    await updateDoc(doc(db,'dataCounter','counter'),{
+      inDataCounter:this.state.dataCounter.inDataCounter,
+      outDataCounter:this.state.dataCounter.outDataCounter,
+      roofDataCounter:this.state.dataCounter.roofDataCounter,
+    })
+    console.log("success to update!");
+  }*/
+
 
   /*更新時*/
   /*componentDidUpdate(){
@@ -159,6 +188,11 @@ class App extends Component  {
 
   //Firebaseから飲食可能スペースの情報を取得
   async getLocation(){
+    //FirebaseからdataCounterを読み取り
+    const dataCounterCol = collection(db,'dataCounter');
+    const dataCounterSnapshot = await getDocs(dataCounterCol);
+    const dataCounterList = dataCounterSnapshot.docs.map(doc =>doc.data());
+
     //Firebaseから屋内データの読み取り
     const inDataCol = collection(db,'inData');
     const inDataSnapshot = await getDocs(inDataCol);
@@ -175,10 +209,12 @@ class App extends Component  {
     const roofDataList = roofDataSnapshot.docs.map(doc => doc.data());
     //取ってきたデータを配列に追加
     this.setState({
+      dataCounter:dataCounterList,
       inItems:inDataList,
       outItems:outDataList,
       roofItems:roofDataList,
       modalVisible:false,
+      editMode:false,
       region:{
         latitude:this.state.currentRegion.latitude,
         longitude:this.state.currentRegion.longitude
@@ -371,9 +407,7 @@ class App extends Component  {
               席数
           </Text>
           <View
-            Style={{
-              flexDirection:'row',
-            }}>
+            style={Styles.numOfSeat}>
             <Button
               style={Styles.optionButton}
               backgroundColor={this.state.benchLowButton? "#6495ed" : "#ffffff"}
@@ -437,7 +471,11 @@ class App extends Component  {
               padding: 10,
             }}
             onPress={() =>{
-              this.setLocation();
+              if(this.state.editMode===true){
+                this.editMarker();
+              }else{
+                this.setLocation();
+              }
               this.setState({
                 inButton:false,
                 outButton:false,
@@ -464,27 +502,36 @@ class App extends Component  {
   /*新しいピンをFirease上の配列に追加*/
   async setLocation(){
     if(this.state.inButton===true){
-      await addDoc(collection(db,'inData'),{
+      await setDoc(doc(db,'inData',String(this.state.dataCounter[0].inDataCounter)),{
+        dispMarker:true,
         latitude:this.state.region.latitude,
         longitude:this.state.region.longitude,
         tableButton:this.state.tableButton,
         benchLowButton:this.state.benchLowButton,
         benchMidButton:this.state.benchMidButton,
         benchHighButton:this.state.benchHighButton,
+      })
+      await updateDoc(doc(db,'dataCounter','counter'),{
+        inDataCounter:this.state.dataCounter[0].inDataCounter+1,
       })
     }
     if(this.state.outButton===true){
-      await addDoc(collection(db,'outData'),{
+      await setDoc(doc(db,'outData',String(this.state.dataCounter[0].outDataCounter)),{
+        dispMarker:true,
         latitude:this.state.region.latitude,
         longitude:this.state.region.longitude,
         tableButton:this.state.tableButton,
         benchLowButton:this.state.benchLowButton,
         benchMidButton:this.state.benchMidButton,
         benchHighButton:this.state.benchHighButton,
+      })
+      await updateDoc(doc(db,'dataCounter','counter'),{
+        outDataCounter:this.state.dataCounter[0].outDataCounter+1,
       })
     }
     if(this.state.roofButton===true){
-      await addDoc(collection(db,'roofData'),{
+      await setDoc(doc(db,'roofData',String(this.state.dataCounter[0].roofDataCounter)),{
+        dispMarker:true,
         latitude:this.state.region.latitude,
         longitude:this.state.region.longitude,
         tableButton:this.state.tableButton,
@@ -492,8 +539,58 @@ class App extends Component  {
         benchMidButton:this.state.benchMidButton,
         benchHighButton:this.state.benchHighButton,
       })
+      await updateDoc(doc(db,'dataCounter','counter'),{
+        roofDataCounter:this.state.dataCounter[0].roofDataCounter+1,
+      })
     }
     console.log('success to push');
+    this.getLocation();
+  }
+  //マーカーを削除
+  async delMarker(){
+    if(this.state.detailInModal===true){
+      await updateDoc(doc(db,'inData',String(this.state.inModalNumber)),{
+        dispMarker:false,
+      })
+    }
+    if(this.state.detailOutModal===true){
+      await updateDoc(doc(db,'outData',String(this.state.outModalNumber)),{
+        dispMarker:false,
+      })
+    }
+    if(this.state.detailRoofModal===true){
+      await updateDoc(doc(db,'roofData',String(this.state.roofModalNumber)),{
+        dispMarker:false,
+      })
+    }
+    this.getLocation();
+  }
+  //マーカーを編集
+  async editMarker(){
+    if(this.state.discrimModal==1){
+      await updateDoc(doc(db,'inData',String(this.state.inModalNumber)),{
+        tableButton:this.state.tableButton,
+        benchLowButton:this.state.benchLowButton,
+        benchMidButton:this.state.benchMidButton,
+        benchHighButton:this.state.benchHighButton,
+      })
+    }
+    if(this.state.discrimModal==2){
+      await updateDoc(doc(db,'outData',String(this.state.outModalNumber)),{
+        tableButton:this.state.tableButton,
+        benchLowButton:this.state.benchLowButton,
+        benchMidButton:this.state.benchMidButton,
+        benchHighButton:this.state.benchHighButton,
+      })
+    }
+    if(this.state.discrimModal==3){
+      await updateDoc(doc(db,'roofData',String(this.state.roofModalNumber)),{
+        tableButton:this.state.tableButton,
+        benchLowButton:this.state.benchLowButton,
+        benchMidButton:this.state.benchMidButton,
+        benchHighButton:this.state.benchHighButton,
+      })
+    }
     this.getLocation();
   }
 
@@ -572,7 +669,8 @@ class App extends Component  {
             Style={{flexDirection:'row',}}>
             席数
           </Text>
-          <View>
+          <View
+            style={Styles.numOfSeat}>
             <Button
               style={Styles.optionButton}
               backgroundColor={this.state.inItems[this.state.inModalNumber].benchLowButton? "#6495ed" : "#ffffff"}
@@ -608,25 +706,70 @@ class App extends Component  {
             </Button>
           </View>
           {/*閉じるボタン*/}
-          <Button
-            style={{
-              alignSelf:'center',
-              borderRadius: 20,
-              padding: 10,
-            }}
-            onPress={() =>{
-              this.setState({
-                detailInModal:false
-              })
-            }}
-          >
-            <Text 
-            style={{
-              color:'#FFF'
-              }}>
-              閉じる
-            </Text>
-          </Button>
+          <View style={Styles.numOfSeat}>
+            <Button
+              style={{
+                /*alignSelf:'center',*/
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.setState({
+                  editMode:true,
+                  modalVisible:true,
+                  detailInModal:false,
+                  discrimModal:1,
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                編集
+              </Text>
+            </Button>
+            <Button
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.delMarker();
+                this.setState({
+                  detailInModal:false,
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                削除
+              </Text>
+            </Button>
+            <Button
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.setState({
+                  detailInModal:false
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                閉じる
+              </Text>
+            </Button>  
+          </View>        
         </View>
       </Modal>
     );
@@ -705,7 +848,7 @@ class App extends Component  {
             Style={{flexDirection:'row',}}>
             席数
           </Text>
-          <View>
+          <View style={Styles.numOfSeat}>
             <Button
               style={Styles.optionButton}
               backgroundColor={this.state.outItems[this.state.outModalNumber].benchLowButton? "#6495ed" : "#ffffff"}
@@ -741,25 +884,70 @@ class App extends Component  {
             </Button>
           </View>
           {/*閉じるボタン*/}
-          <Button
-            style={{
-              alignSelf:'center',
-              borderRadius: 20,
-              padding: 10,
-            }}
-            onPress={() =>{
-              this.setState({
-                detailOutModal:false
-              })
-            }}
-          >
-            <Text 
-            style={{
-              color:'#FFF'
-              }}>
-              閉じる
-            </Text>
-          </Button>
+          <View style={Styles.numOfSeat}>
+            <Button
+              style={{
+                /*alignSelf:'center',*/
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.setState({
+                  editMode:true,
+                  modalVisible:true,
+                  discrimModal:2,
+                  detailOutModal:false
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                編集
+              </Text>
+            </Button>
+            <Button
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.delMarker();
+                this.setState({
+                  detailOutModal:false,
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                削除
+              </Text>
+            </Button>
+            <Button
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.setState({
+                  detailOutModal:false
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                閉じる
+              </Text>
+            </Button>  
+          </View> 
         </View>
       </Modal>
     );
@@ -838,7 +1026,7 @@ class App extends Component  {
             Style={{flexDirection:'row',}}>
             席数
           </Text>
-          <View>
+          <View style={Styles.numOfSeat}>
             <Button
               style={Styles.optionButton}
               backgroundColor={this.state.roofItems[this.state.roofModalNumber].benchLowButton? "#6495ed" : "#ffffff"}
@@ -874,25 +1062,70 @@ class App extends Component  {
             </Button>
           </View>
           {/*閉じるボタン*/}
-          <Button
-            style={{
-              alignSelf:'center',
-              borderRadius: 20,
-              padding: 10,
-            }}
-            onPress={() =>{
-              this.setState({
-                detailRoofModal:false
-              })
-            }}
-          >
-            <Text 
-            style={{
-              color:'#FFF'
-              }}>
-              閉じる
-            </Text>
-          </Button>
+          <View style={Styles.numOfSeat}>
+            <Button
+              style={{
+                /*alignSelf:'center',*/
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.setState({
+                  editMode:true,
+                  modalVisible:true,
+                  discrimModal:3,
+                  detailRoofModal:false
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                編集
+              </Text>
+            </Button>
+            <Button
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.delMarker();
+                this.setState({
+                  detailRoofModal:false,
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                削除
+              </Text>
+            </Button>
+            <Button
+              style={{
+                borderRadius: 20,
+                padding: 10,
+                margin:10,
+              }}
+              onPress={() =>{
+                this.setState({
+                  detailRoofModal:false
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                閉じる
+              </Text>
+            </Button>  
+          </View> 
         </View>
       </Modal>
     );
@@ -1018,6 +1251,13 @@ class App extends Component  {
               {item.benchHighButton? "5~":""}
             </Text>
           </View>
+          <View style={{
+            textAlign:'right',
+          }}>
+            <Text>
+              詳細
+            </Text>
+          </View>
         </View>
       </Callout>
     </Marker>
@@ -1038,10 +1278,10 @@ class App extends Component  {
     console.log(this.state.inItems);
     console.log(this.state.outItems);
     console.log(this.state.roofItems);
-    console.log(this.state.modalNumber);
     console.log(this.state.detailInModal);
     console.log(this.state.detailOutModal);
     console.log(this.state.detailRoofModal);
+    console.log(this.state.dataCounter);
 
     return (
       <View 
@@ -1100,167 +1340,200 @@ class App extends Component  {
             </View>
           </Marker>
           {/*配列の飲食可能スペースのピンを設置*/}
-          {this.state.inItems.map((item,index)=>(
-            console.log('in'),
-            <Marker
-              key={index}
-              coordinate={{
-                latitude:item.latitude,
-                longitude:item.longitude,
-              }}
-              >
-              {/*ピンの形(飲食可能スペース)*/}
-              <View style={Styles.centerOfScreen}>
-                <View
-                  style={Styles.iconBackground}>
-                  <Icon
-                    color='#1e90ff'
-                    type="FontAwesome5"
-                    name="lightbulb"
-                    style={Styles.icon}
-                  />
-                </View>
-                <View
-                  style={Styles.invertedTriangle}
+          {this.state.inItems.map((item,index)=>{
+            if(this.state.inItems[index].dispMarker===true){
+              return(
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude:item.latitude,
+                    longitude:item.longitude,
+                  }}
+                  >
+                  {/*ピンの形(飲食可能スペース)*/}
+                  <View style={Styles.centerOfScreen}>
+                    <View
+                      style={Styles.iconBackground}>
+                      <Icon
+                        color='#1e90ff'
+                        type="FontAwesome5"
+                        name="lightbulb"
+                        style={Styles.icon}
+                      />
+                    </View>
+                    <View
+                      style={Styles.invertedTriangle}
+                    >
+                    </View>
+                  </View>
+                  {/**コールアウト */}
+                  <Callout tooltip
+                    onPress={()=>{
+                      this.setState({
+                        inModalNumber:index,
+                        detailInModal:true,
+                      })
+                    }}>
+                    <View style={Styles.bubble}>
+                      <View style={Styles.nameFloat}>
+                        <Text style={Styles.name}>
+                          テーブル：
+                        </Text>
+                        <Text style={Styles.name}>
+                          {item.tableButton? "あり":"なし"}
+                        </Text>
+                      </View>
+                      <View style={Styles.nameFloat}>
+                        <Text style={Styles.name}>
+                          イス：
+                        </Text>
+                        <Text style={Styles.name}>
+                          {item.benchLowButton? "1~2":""}
+                          {item.benchMidButton? "3~4":""}
+                          {item.benchHighButton? "5~":""}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text style={{
+                          fontSize:13,
+                          textAlign:'right',
+                        }}>
+                          詳細...
+                        </Text>
+                      </View>
+                    </View>
+                  </Callout>
+                </Marker>
+              
+              )
+            }
+          })}
+          {this.state.outItems.map((item,index)=>{
+            if(this.state.outItems[index].dispMarker===true){
+              return(  
+                <Marker
+                  key={index}
+                  coordinate={{
+                  latitude:item.latitude,
+                  longitude:item.longitude,
+                  }}
                 >
-                </View>
-              </View>
-              {/**コールアウト */}
-              <Callout tooltip
-                onPress={()=>{
-                  this.setState({
-                    inModalNumber:index,
-                    detailInModal:true,
-                  })
-                }}>
-                <View style={Styles.bubble}>
-                  <View style={Styles.nameFloat}>
-                    <Text style={Styles.name}>
-                      テーブル：
-                    </Text>
-                    <Text style={Styles.name}>
-                      {item.tableButton? "あり":"なし"}
-                    </Text>
-                  </View>
-                  <View style={Styles.nameFloat}>
-                    <Text style={Styles.name}>
-                      イス：
-                    </Text>
-                    <Text style={Styles.name}>
-                      {item.benchLowButton? "1~2":""}
-                      {item.benchMidButton? "3~4":""}
-                      {item.benchHighButton? "5~":""}
-                    </Text>
+                {/*ピンの形(飲食可能スペース)*/}
+                <View style={Styles.centerOfScreen}>
+                  <View
+                    style={Styles.iconBackground}>
+                    <Icon
+                      color='yellow'
+                      type="FontAwesome5"
+                      name="lightbulb"
+                      style={Styles.icon}
+                    />
                   </View>
                 </View>
-              </Callout>
-            </Marker>
-            //this.showInMarker(item,index)
-          ))}
-          {this.state.outItems.map((item,index)=>(
-            console.log('out'),
-            <Marker
-              key={index}
-              coordinate={{
-              latitude:item.latitude,
-              longitude:item.longitude,
-              }}
-            >
-            {/*ピンの形(飲食可能スペース)*/}
-            <View style={Styles.centerOfScreen}>
-              <View
-                style={Styles.iconBackground}>
-                <Icon
-                  color='yellow'
-                  type="FontAwesome5"
-                  name="lightbulb"
-                  style={Styles.icon}
-                />
-              </View>
-            </View>
-            {/**コールアウト */}
-            <Callout tooltip
-              onPress={()=>{
-                this.setState({
-                  outModalNumber:index,
-                  detailOutModal:true,
-                })
-              }}>
-              <View style={Styles.bubble}>
-                <View style={Styles.nameFloat}>
-                  <Text style={Styles.name}>
-                    テーブル：
-                  </Text>
-                  <Text style={Styles.name}>
-                    {item.tableButton? "あり":"なし"}
-                  </Text>
+                {/**コールアウト */}
+                <Callout tooltip
+                  onPress={()=>{
+                    this.setState({
+                      outModalNumber:index,
+                      detailOutModal:true,
+                    })
+                  }}>
+                  <View style={Styles.bubble}>
+                    <View style={Styles.nameFloat}>
+                      <Text style={Styles.name}>
+                        テーブル：
+                      </Text>
+                      <Text style={Styles.name}>
+                        {item.tableButton? "あり":"なし"}
+                      </Text>
+                    </View>
+                    <View style={Styles.nameFloat}>
+                      <Text style={Styles.name}>
+                        イス：
+                      </Text>
+                      <Text style={Styles.name}>
+                        {item.benchLowButton? "1~2":""}
+                        {item.benchMidButton? "3~4":""}
+                        {item.benchHighButton? "5~":""}
+                      </Text>
+                    </View>
+                    <View>
+                        <Text style={{
+                          fontSize:13,
+                          textAlign:'right',
+                        }}>
+                          詳細...
+                        </Text>
+                      </View>
+                  </View>
+                </Callout>
+              </Marker>
+              )
+            }
+          })}
+          {this.state.roofItems.map((item,index)=>{
+            if(this.state.roofItems[index].dispMarker===true){
+              return(  
+                <Marker
+                  key={index}
+                  coordinate={{
+                  latitude:item.latitude,
+                  longitude:item.longitude,
+                  }}
+                >
+                {/*ピンの形(飲食可能スペース)*/}
+                <View style={Styles.centerOfScreen}>
+                  <View
+                    style={Styles.iconBackground}>
+                    <Icon
+                      color='magenta'
+                      type="FontAwesome5"
+                      name="lightbulb"
+                      style={Styles.icon}
+                    />
+                  </View>
                 </View>
-                <View style={Styles.nameFloat}>
-                  <Text style={Styles.name}>
-                    イス：
-                  </Text>
-                  <Text style={Styles.name}>
-                    {item.benchLowButton? "1~2":""}
-                    {item.benchMidButton? "3~4":""}
-                    {item.benchHighButton? "5~":""}
-                  </Text>
-                </View>
-              </View>
-            </Callout>
-          </Marker>
-          ))}
-          {this.state.roofItems.map((item,index)=>(
-            console.log('roof'),
-            <Marker
-              key={index}
-              coordinate={{
-              latitude:item.latitude,
-              longitude:item.longitude,
-              }}
-            >
-            {/*ピンの形(飲食可能スペース)*/}
-            <View style={Styles.centerOfScreen}>
-              <View
-                style={Styles.iconBackground}>
-                <Icon
-                  color='magenta'
-                  type="FontAwesome5"
-                  name="lightbulb"
-                  style={Styles.icon}
-                />
-              </View>
-            </View>
-            {/**コールアウト */}
-            <Callout tooltip
-              onPress={()=>{
-                this.setState({
-                  roofModalNumber:index,
-                  detailRoofModal:true,
-                })
-              }}>
-              <View style={Styles.bubble}>
-                <View style={Styles.nameFloat}>
-                  <Text style={Styles.name}>
-                    テーブル：
-                  </Text>
-                  <Text style={Styles.name}>
-                    {item.tableButton? "あり":"なし"}
-                  </Text>
-                </View>
-                <View style={Styles.nameFloat}>
-                  <Text style={Styles.name}>
-                    イス：
-                  </Text>
-                  <Text style={Styles.name}>
-                    {item.benchLowButton? "1~2":""}
-                    {item.benchMidButton? "3~4":""}
-                    {item.benchHighButton? "5~":""}
-                  </Text>
-                </View>
-              </View>
-            </Callout>
-          </Marker>
-          ))}
+                {/**コールアウト */}
+                <Callout tooltip
+                  onPress={()=>{
+                    this.setState({
+                      roofModalNumber:index,
+                      detailRoofModal:true,
+                    })
+                  }}>
+                  <View style={Styles.bubble}>
+                    <View style={Styles.nameFloat}>
+                      <Text style={Styles.name}>
+                        テーブル：
+                      </Text>
+                      <Text style={Styles.name}>
+                        {item.tableButton? "あり":"なし"}
+                      </Text>
+                    </View>
+                    <View style={Styles.nameFloat}>
+                      <Text style={Styles.name}>
+                        イス：
+                      </Text>
+                      <Text style={Styles.name}>
+                        {item.benchLowButton? "1~2":""}
+                        {item.benchMidButton? "3~4":""}
+                        {item.benchHighButton? "5~":""}
+                      </Text>
+                    </View>
+                    <View>
+                        <Text style={{
+                          fontSize:13,
+                          textAlign:'right',
+                        }}>
+                          詳細...
+                        </Text>
+                      </View>
+                  </View>
+                </Callout>
+              </Marker>
+              )
+            }
+          })}
         </MapView>
         {/*飲食可能スペース追加ボタン*/}
         <View

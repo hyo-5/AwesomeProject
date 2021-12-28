@@ -20,11 +20,26 @@ const Styles = StyleSheet.create({
       borderRadius: 30 / 2,
       backgroundColor: '#00FFFF',
     },
+    currentIconBackground:{
+      top:0,
+      bottom:0,
+      width: 30,
+      height: 30,
+      alignSelf: 'center',
+      justifyContent: 'center',
+      borderRadius: 30 / 2,
+      backgroundColor: '#FF4F02',
+    },
+    
     icon:{
         top:0,
         textAlign: 'center',
         fontSize: 5,
     },
+    iconInfo:{
+      top:0,
+      fontSize: 5,
+  },
     invertedTriangle:{
       top: -4,
       width: 0,
@@ -105,6 +120,15 @@ const Styles = StyleSheet.create({
       borderTopColor: '#FF4F02',
       borderLeftColor: 'transparent',
       borderRightColor: 'transparent',
+    },
+    infoModal:{
+      marginTop:'1%',
+      marginLeft:'1%',
+      padding:'1%',
+      borderRadius:20,
+      backgroundColor:'white',
+      borderWidth:1,
+      borderColor:'black',
     },
 
 })

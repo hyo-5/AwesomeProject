@@ -99,7 +99,9 @@ class App extends Component  {
       editMode:false,
       /*オプション*/
       disMarker:true,
-      discrimModal:0,//：１：屋内、２：屋外、３：屋根付き
+      editInMarker:false,
+      editOutMarker:false,
+      editRoofMarker:false,
       inButton:false,
       outButton:false,
       roofButton:false,
@@ -215,6 +217,9 @@ class App extends Component  {
       roofItems:roofDataList,
       modalVisible:false,
       editMode:false,
+      editInMarker:false,
+      editOutMarker:false,
+      editRoofMarker:false,
       region:{
         latitude:this.state.currentRegion.latitude,
         longitude:this.state.currentRegion.longitude
@@ -267,12 +272,14 @@ class App extends Component  {
     if(this.state.crosshair===true){
       return(
         <View style={{
-          height:'90%',
-        }}>
+          height:'80%',
+          width:'100%',
+          justifyContent:'center',
+          alignItems:'center',
+          }}>
           <View style={{
-            marginTop:'75%',
-            marginLeft:'45%',
-            marginRight:'45%',
+            position:'absolute',
+            marginTop:'43%',
           }}>
             <Icon
             style={{
@@ -280,27 +287,51 @@ class App extends Component  {
               type='font-awesome-5'
               name='plus'
             /> 
-          </View>         
-          <Button 
+          </View> 
+          <View
             style={{
-              marginTop:'20%',
-              width:'20%',
-              alignSelf:'center',
-              justifyContent:'center',
-            }}
-            onPress = {()=>{
-              this.setState({
-                modalVisible:true,
-                crosshair:false,
-              })
-            }}
-          >
-            <Text style={{
-              color:'#FFF',
-            }}>
-              決定
-            </Text>
-          </Button>
+              flexDirection:'row',
+            }}>        
+            <Button 
+              style={{
+                width:'20%',
+                alignSelf:'center',
+                justifyContent:'center',
+                margin:'1%',
+              }}
+              onPress = {()=>{
+                this.setState({
+                  modalVisible:true,
+                  crosshair:false,
+                })
+              }}
+            >
+              <Text style={{
+                color:'#FFF',
+              }}>
+                決定
+              </Text>
+            </Button>
+            <Button 
+              style={{
+                width:'20%',
+                alignSelf:'center',
+                justifyContent:'center',
+                margin:'1%',
+              }}
+              onPress = {()=>{
+                this.setState({
+                  crosshair:false,
+                })
+              }}
+            >
+              <Text style={{
+                color:'#FFF',
+              }}>
+                閉じる
+              </Text>
+            </Button>
+          </View>
         </View>
       )
     }
@@ -327,66 +358,82 @@ class App extends Component  {
             borderColor:'black',
         }}>
           <Text style={{
-            marginBottom: 15,
-            textAlign: "center",
+            marginBottom:'20%',
+            textAlign:"center",
+            fontSize:30,
+            textDecorationLine:'underline',
           }}>
             オプション選択
           </Text>
           {/*オプションスイッチ(屋内,屋外,屋外(屋根付き),テーブル,ベンチ,コメント,)*/}
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.inButton? "#6495ed" : "#ffffff"}
-            onPress={()=>{
-              this.setState({
-                inButton:!this.state.inButton,
-                outButton:false,
-                roofButton:false,
-              })
-            }}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋内
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.outButton? "#6495ed" : "#ffffff"}
-            onPress={()=>{
-              this.setState({
-                outButton:!this.state.outButton,
-                inButton:false,
-                roofButton:false,
-              })
-            }}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.roofButton? "#6495ed" : "#ffffff"}
-            onPress={()=>{
-              this.setState({
-                roofButton:!this.state.roofButton,
-                inButton:false,
-                outButton:false,
-              })
-            }}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外(屋根あり)
-            </Text>
-          </Button>
+          <Text>
+            場所の情報
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={
+                this.state.editInMarker? '#6495ed':this.state.editMode?"#ffffff":this.state.inButton? "#6495ed" : "#ffffff"
+              }
+              onPress={()=>{
+                this.setState({
+                  inButton:!this.state.inButton,
+                  outButton:false,
+                  roofButton:false,
+                })
+              }}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋内
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={
+                this.state.editOutMarker? '#6495ed':this.state.editMode?"#ffffff":this.state.outButton? "#6495ed" : "#ffffff"
+              }
+              onPress={()=>{
+                this.setState({
+                  outButton:!this.state.outButton,
+                  inButton:false,
+                  roofButton:false,
+                })
+              }}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={
+                this.state.editRoofMarker?'#6495ed':this.state.editMode?"#ffffff":this.state.roofButton? "#6495ed" : "#ffffff"
+              }
+              onPress={()=>{
+                this.setState({
+                  roofButton:!this.state.roofButton,
+                  inButton:false,
+                  outButton:false,
+                })
+              }}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外(屋根あり)
+              </Text>
+            </Button>
+          </View>
           <Button
             style={Styles.optionButton}
             backgroundColor={this.state.tableButton? "#6495ed" : "#ffffff"}
@@ -464,36 +511,69 @@ class App extends Component  {
             </Button>
           </View>
           {/*決定ボタン*/}
-          <Button
+          <View
             style={{
-              alignSelf:'center',
-              borderRadius: 20,
-              padding: 10,
-            }}
-            onPress={() =>{
-              if(this.state.editMode===true){
-                this.editMarker();
-              }else{
-                this.setLocation();
-              }
-              this.setState({
-                inButton:false,
-                outButton:false,
-                roofButton:false,
-                tableButton:false,
-                benchLowButton:false,
-                benchHighButton:false,
-                benchMidButton:false,
-              })
-            }}
-          >
-            <Text 
-            style={{
-              color:'#FFF'
-              }}>
-              決定
-            </Text>
-          </Button>
+              flexDirection:'row',
+            }}>
+            <Button
+              style={{
+                alignSelf:'center',
+                borderRadius: 15,
+                padding: 10,
+                margin:'3%',
+              }}
+              onPress={() =>{
+                if(this.state.editMode===true){
+                  this.editMarker();
+                }else{
+                  this.setLocation();
+                }
+                this.setState({
+                  inButton:false,
+                  outButton:false,
+                  roofButton:false,
+                  tableButton:false,
+                  benchLowButton:false,
+                  benchHighButton:false,
+                  benchMidButton:false,
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                決定
+              </Text>
+            </Button>
+            <Button
+              style={{
+                alignSelf:'center',
+                borderRadius: 15,
+                padding: 10,
+                margin:'3%'
+              }}
+              onPress={() =>{
+                this.setState({
+                  inButton:false,
+                  outButton:false,
+                  roofButton:false,
+                  tableButton:false,
+                  benchLowButton:false,
+                  benchHighButton:false,
+                  benchMidButton:false,
+                  modalVisible:false,
+                })
+              }}
+            >
+              <Text 
+              style={{
+                color:'#FFF'
+                }}>
+                閉じる
+              </Text>
+            </Button>
+          </View>
         </View>
       </Modal>
     );
@@ -567,7 +647,7 @@ class App extends Component  {
   }
   //マーカーを編集
   async editMarker(){
-    if(this.state.discrimModal==1){
+    if(this.state.editInMarker===true){
       await updateDoc(doc(db,'inData',String(this.state.inModalNumber)),{
         tableButton:this.state.tableButton,
         benchLowButton:this.state.benchLowButton,
@@ -575,7 +655,7 @@ class App extends Component  {
         benchHighButton:this.state.benchHighButton,
       })
     }
-    if(this.state.discrimModal==2){
+    if(this.state.editOutMarker===true){
       await updateDoc(doc(db,'outData',String(this.state.outModalNumber)),{
         tableButton:this.state.tableButton,
         benchLowButton:this.state.benchLowButton,
@@ -583,7 +663,7 @@ class App extends Component  {
         benchHighButton:this.state.benchHighButton,
       })
     }
-    if(this.state.discrimModal==3){
+    if(this.state.editRoofMarker===true){
       await updateDoc(doc(db,'roofData',String(this.state.roofModalNumber)),{
         tableButton:this.state.tableButton,
         benchLowButton:this.state.benchLowButton,
@@ -594,6 +674,23 @@ class App extends Component  {
     this.getLocation();
   }
 
+  showLocationInfo(){
+    return(
+      <View
+        style={Styles.infoModal}>
+        <View>
+          <Icon
+            color='#1e90ff'
+            type="FontAwesome5"
+            name="lightbulb"
+            style={Styles.iconInfo}/>
+          <Text>
+            屋内
+          </Text>
+        </View>
+      </View>
+    );
+  }
   /*飲食可能スペースの詳細を表示*/
   showDetailInModal(){
     return (
@@ -617,54 +714,83 @@ class App extends Component  {
           <Text style={{
             marginBottom: 15,
             textAlign: "center",
+            fontSize:30,
+            textDecorationLine:'underline',
           }}>
             オプション
           </Text>
           {/*オプション表示(屋内,屋外,屋外(屋根付き),テーブル,ベンチ,コメント,)*/}
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#6495ed"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋内
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#ffffff"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#ffffff"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外(屋根あり)
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.inItems[this.state.inModalNumber].tableButton? "#6495ed" : "#ffffff"}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              テーブル
-            </Text>
-          </Button>
+          <Text>
+            場所の情報
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#6495ed"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋内
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#ffffff"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#ffffff"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外(屋根あり)
+              </Text>
+            </Button>
+          </View>
+          <Text>
+            テーブル
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.inItems[this.state.inModalNumber].tableButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                あり
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.inItems[this.state.inModalNumber].tableButton? "#ffffff":"#6495ed" }
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                なし
+              </Text>
+            </Button>
+          </View>
           <Text
             Style={{flexDirection:'row',}}>
             席数
@@ -719,7 +845,12 @@ class App extends Component  {
                   editMode:true,
                   modalVisible:true,
                   detailInModal:false,
-                  discrimModal:1,
+                  editInMarker:true,
+                  inButton:true,
+                  tableButton:this.state.inItems[this.state.inModalNumber].tableButton,
+                  benchHighButton:this.state.inItems[this.state.inModalNumber].benchHighButton,
+                  benchMidButton:this.state.inItems[this.state.inModalNumber].benchMidButton,
+                  benchLowButton:this.state.inItems[this.state.inModalNumber].benchLowButton,
                 })
               }}
             >
@@ -796,54 +927,83 @@ class App extends Component  {
           <Text style={{
             marginBottom: 15,
             textAlign: "center",
+            fontSize:30,
+            textDecorationLine:'underline',
           }}>
             オプション
           </Text>
           {/*オプション表示(屋内,屋外,屋外(屋根付き),テーブル,ベンチ,コメント,)*/}
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#ffffff"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋内
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#6495ed"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#ffffff"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外(屋根あり)
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.outItems[this.state.outModalNumber].tableButton? "#6495ed" : "#ffffff"}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              テーブル
-            </Text>
-          </Button>
+          <Text>
+            場所の情報
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#ffffff"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋内
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#6495ed"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#ffffff"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外(屋根あり)
+              </Text>
+            </Button>
+          </View>
+          <Text>
+            テーブル
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.outItems[this.state.outModalNumber].tableButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                あり
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.outItems[this.state.outModalNumber].tableButton? "#ffffff":"#6495ed" }
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                なし
+              </Text>
+            </Button>
+          </View>
           <Text
             Style={{flexDirection:'row',}}>
             席数
@@ -896,8 +1056,12 @@ class App extends Component  {
                 this.setState({
                   editMode:true,
                   modalVisible:true,
-                  discrimModal:2,
-                  detailOutModal:false
+                  editOutMarker:true,
+                  detailOutModal:false,
+                  tableButton:this.state.outItems[this.state.outModalNumber].tableButton,
+                  benchHighButton:this.state.outItems[this.state.outModalNumber].benchHighButton,
+                  benchMidButton:this.state.outItems[this.state.outModalNumber].benchMidButton,
+                  benchLowButton:this.state.outItems[this.state.outModalNumber].benchLowButton,
                 })
               }}
             >
@@ -974,54 +1138,83 @@ class App extends Component  {
           <Text style={{
             marginBottom: 15,
             textAlign: "center",
+            fontSize:30,
+            textDecorationLine:'underline',
           }}>
             オプション
           </Text>
           {/*オプション表示(屋内,屋外,屋外(屋根付き),テーブル,ベンチ,コメント,)*/}
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#ffffff"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋内
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#ffffff"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor="#6495ed"
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              屋外(屋根あり)
-            </Text>
-          </Button>
-          <Button
-            style={Styles.optionButton}
-            backgroundColor={this.state.roofItems[this.state.roofModalNumber].tableButton? "#6495ed" : "#ffffff"}
-            >
-            <Text
-              Style={{
-                color:"#000"
-              }}>
-              テーブル
-            </Text>
-          </Button>
+          <Text>
+            場所の情報
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#ffffff"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋内
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#ffffff"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor="#6495ed"
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                屋外(屋根あり)
+              </Text>
+            </Button>
+          </View>
+          <Text>
+            テーブル
+          </Text>
+          <View
+            style={{
+              flexDirection:'row',
+            }}>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.roofItems[this.state.roofModalNumber].tableButton? "#6495ed" : "#ffffff"}
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                あり
+              </Text>
+            </Button>
+            <Button
+              style={Styles.optionButton}
+              backgroundColor={this.state.roofItems[this.state.roofModalNumber].tableButton? "#ffffff":"#6495ed" }
+              >
+              <Text
+                Style={{
+                  color:"#000"
+                }}>
+                なし
+              </Text>
+            </Button>
+          </View>
           <Text
             Style={{flexDirection:'row',}}>
             席数
@@ -1074,8 +1267,12 @@ class App extends Component  {
                 this.setState({
                   editMode:true,
                   modalVisible:true,
-                  discrimModal:3,
-                  detailRoofModal:false
+                  editRoofMarker:true,
+                  detailRoofModal:false,
+                  tableButton:this.state.roofItems[this.state.roofModalNumber].tableButton,
+                  benchHighButton:this.state.roofItems[this.state.roofModalNumber].benchHighButton,
+                  benchMidButton:this.state.roofItems[this.state.roofModalNumber].benchMidButton,
+                  benchLowButton:this.state.roofItems[this.state.roofModalNumber].benchLowButton,
                 })
               }}
             >
@@ -1429,6 +1626,9 @@ class App extends Component  {
                       style={Styles.icon}
                     />
                   </View>
+                  <View
+                      style={Styles.invertedTriangle}
+                    />
                 </View>
                 {/**コールアウト */}
                 <Callout tooltip
@@ -1492,6 +1692,9 @@ class App extends Component  {
                       style={Styles.icon}
                     />
                   </View>
+                  <View
+                      style={Styles.invertedTriangle}
+                    />
                 </View>
                 {/**コールアウト */}
                 <Callout tooltip
@@ -1538,12 +1741,97 @@ class App extends Component  {
         {/*飲食可能スペース追加ボタン*/}
         <View
           style={{
-            height:'10%'
+            height:'20%',
+            flexDirection:'row',
+            justifyContent:'space-between',
           }}>
+          <View
+            style={Styles.infoModal}>
+            <View
+              style={{
+                flexDirection:'row',
+                alignItems:'center',
+                margin:'1%',
+              }}>
+              <View
+                style={Styles.currentIconBackground}
+                >
+                <Icon
+                  color='black'
+                  type="FontAwesome5"
+                  name="person"
+                  style={Styles.iconInfo}
+                />
+              </View>
+              <Text>
+                現在地
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection:'row',
+                alignItems:'center',
+                margin:'1%',
+              }}>
+              <View
+                style={Styles.iconBackground}
+                >
+                <Icon
+                  color='#1e90ff'
+                  type="FontAwesome5"
+                  name="lightbulb"
+                  style={Styles.iconInfo}
+                />
+              </View>
+              <Text>
+                屋内
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection:'row',
+                alignItems:'center',
+                margin:'1%',
+              }}>
+              <View
+                style={Styles.iconBackground}
+                >
+                <Icon
+                  color='yellow'
+                  type="FontAwesome5"
+                  name="lightbulb"
+                  style={Styles.iconInfo}
+                />
+              </View>
+              <Text>
+                屋外
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection:'row',
+                alignItems:'center',
+                margin:'1%',
+              }}>
+              <View
+                style={Styles.iconBackground}
+                >
+                <Icon
+                  color='magenta'
+                  type="FontAwesome5"
+                  name="lightbulb"
+                  style={Styles.iconInfo}
+                />
+              </View>
+              <Text>
+                屋外(屋根)
+              </Text>
+            </View>
+          </View>
           <Button
             style = {{
               marginTop:'5%',
-              marginLeft:'80%',
+              marginRight:'5%',
               justifyContent:'center',
               width:'15%',
             }}
@@ -1561,7 +1849,10 @@ class App extends Component  {
               }}
             />
           </Button>
+
         </View>
+        {/*屋内・屋外・屋根付きの*/}
+        {/*this.showLocationInfo()*/}
         {/*ピンを設置する位置指定*/}
         {this.distSetLocation()}
         {/*オプション一覧*/}

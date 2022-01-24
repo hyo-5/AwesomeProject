@@ -15,6 +15,7 @@ import { Dimensions } from 'react-native';
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs,setDoc,addDoc,updateDoc,doc } from 'firebase/firestore/lite';///lite
+import { withTheme } from 'react-native-elements';
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -90,7 +91,8 @@ class App extends Component  {
           benchHighButton:false,
         },
       ],
-
+      width:0 ,
+      height:0,
       crosshair:false,
       modalVisible:false,
       detailInModal:false,
@@ -154,12 +156,10 @@ class App extends Component  {
     const inDataCol = collection(db,'inData');
     const inDataSnapshot = await getDocs(inDataCol);
     const inDataList = inDataSnapshot.docs.map(doc => doc.data());
-    
     //Firebaseから屋内データの読み取り
     const outDataCol = collection(db,'outData');
     const outDataSnapshot = await getDocs(outDataCol);
     const outDataList = outDataSnapshot.docs.map(doc => doc.data());
-
     //Firebaseから屋内データの読み取り
     const roofDataCol = collection(db,'roofData');
     const roofDataSnapshot = await getDocs(roofDataCol);
@@ -233,12 +233,7 @@ class App extends Component  {
       (position) => {
         console.log(position);
         this.setState({
-          region:position.coords
-            /*latitude : position.coords.latitude,
-            longitude : position.coords.longitude,
-            latitudeDelta:position.coords.latitudeDelta,
-            longitudeDelta:position.coords.longitudeDelta*/
-          ,
+          region:position.coords,
           currentRegion:{
             latitude:position.coords.latitude,
             longitude:position.coords.longitude,
@@ -271,26 +266,36 @@ class App extends Component  {
   distSetLocation(){
     if(this.state.crosshair===true){
       return(
-        <View style={{
-          height:'80%',
-          width:'100%',
-          justifyContent:'center',
-          alignItems:'center',
-          }}>
-          <View style={{
+        <View 
+          style={{
             position:'absolute',
-            marginTop:'43%',
-          }}>
-            <Icon
-            style={{
-              }}
-              type='font-awesome-5'
-              name='plus'
-            /> 
-          </View> 
+            height:'100%',
+            width:'100%',
+            flexDirection:'column',
+            justifyContent:'center',
+            alignItems:'center',
+          }}
+          >
           <View
             style={{
+              position:'absolute',
+              justifyContent:'center',
+              alignItems:'center',
+            }}>
+            <Icon
+              style={{
+                }}
+                type='font-awesome-5'
+                name='plus'
+              /> 
+          </View>
+          <View
+            style={{
+              //position:'absolute',
+              //justifyContent:'center',
+              //alignItems:'center',
               flexDirection:'row',
+              marginTop:'80%',
             }}>        
             <Button 
               style={{
@@ -1463,15 +1468,6 @@ class App extends Component  {
   render(){
     /*stateが変更された確認*/
     console.log('State changed!');
-    /*画面サイズ取得*/
-    const {width,height} = Dimensions.get('window');
-    const aspectRatio = width/height;
-    /*画面サイズの確認*/
-    /*console.log(aspectRatio);*/
-    const LATITUDE_DELTA = 0.001;
-    const LONGITUDE_DELTA = LATITUDE_DELTA*aspectRatio;
-    /*変数定義*/
-
     console.log(this.state.inItems);
     console.log(this.state.outItems);
     console.log(this.state.roofItems);
@@ -1479,6 +1475,14 @@ class App extends Component  {
     console.log(this.state.detailOutModal);
     console.log(this.state.detailRoofModal);
     console.log(this.state.dataCounter);
+
+    /*画面サイズ取得*/
+    const {width,height} = Dimensions.get('window');
+    const aspectRatio = width/height;
+    /*画面サイズの確認*/
+    /*console.log(aspectRatio);*/
+    const LATITUDE_DELTA = 0.001;
+    const LONGITUDE_DELTA = LATITUDE_DELTA*aspectRatio;
 
     return (
       <View 
@@ -1741,7 +1745,6 @@ class App extends Component  {
         {/*飲食可能スペース追加ボタン*/}
         <View
           style={{
-            height:'20%',
             flexDirection:'row',
             justifyContent:'space-between',
           }}>
@@ -1828,31 +1831,57 @@ class App extends Component  {
               </Text>
             </View>
           </View>
+            <Button
+              style = {{
+                marginTop:'5%',
+                marginRight:'5%',
+                justifyContent:'center',
+                width:'15%',
+              }}
+              onPress = {()=>{
+                  this.setState({
+                    crosshair:true,
+                  })
+                }}
+              >
+              <Icon 
+                type = 'FontAwesome5'
+                name = 'add'
+                color = '#FFF'
+                style = {{
+                }}
+              />
+            </Button>
+        </View>
+          
+        
+        {/**現在地更新ボタン */}
+        <View
+          Style={{
+            //position:'absolute',
+            //width:'100%',
+            //height:'100%',
+            justifyContent:'center',
+            alignItems:'center',
+          }}>
           <Button
             style = {{
-              marginTop:'5%',
-              marginRight:'5%',
+              marginTop:'140%',
+              marginLeft:'65%',
+              width:'30%',
               justifyContent:'center',
-              width:'15%',
+              alignItems:'center',
+              backgroundColor:'#FF7F50',
             }}
             onPress = {()=>{
-                this.setState({
-                  crosshair:true,
-                })
+                this.getCurrentLocation()
               }}
             >
-            <Icon 
-              type = 'FontAwesome5'
-              name = 'add'
-              color = '#FFF'
-              style = {{
-              }}
-            />
+            <Text>
+              現在地更新
+            </Text>
           </Button>
-
         </View>
-        {/*屋内・屋外・屋根付きの*/}
-        {/*this.showLocationInfo()*/}
         {/*ピンを設置する位置指定*/}
         {this.distSetLocation()}
         {/*オプション一覧*/}

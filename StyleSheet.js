@@ -161,6 +161,11 @@ refPositionButton:{
     }, 
 
 
+
+
+
+
+
     十字マーク
     <View
             style={{
